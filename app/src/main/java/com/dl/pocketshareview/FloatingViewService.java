@@ -4,8 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
-import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -31,6 +31,7 @@ public class FloatingViewService extends Service {
         super.onCreate();
         initialize();
         setFloatingView();
+        setDummyView();
         closeFloatingViewAfterAWhile();
     }
 
@@ -50,14 +51,28 @@ public class FloatingViewService extends Service {
         });
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
-        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
         mWindowManager.addView(mFloatingView, params);
+    }
+
+    private void setDummyView() {
+        View dummyView = mFloatingView.findViewById(R.id.dummy_view);
+        dummyView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        stopSelf();
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 
     private void closeFloatingViewAfterAWhile() {
