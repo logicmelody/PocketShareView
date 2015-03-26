@@ -21,7 +21,8 @@
         </activity>
 
         <activity
-            android:name="com.dl.pocketshareview.ShareHandleActivity">
+            android:name="com.dl.pocketshareview.ShareHandleActivity"
+            android:theme="@android:style/Theme.NoDisplay" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
