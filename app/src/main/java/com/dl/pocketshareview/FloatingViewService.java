@@ -16,6 +16,8 @@ import android.widget.Button;
  */
 public class FloatingViewService extends Service {
 
+    private static final int FLOATING_VIEW_DELAY = 3000;
+
     private WindowManager mWindowManager;
     private View mFloatingView;
 
@@ -27,10 +29,18 @@ public class FloatingViewService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        initialize();
+        setFloatingView();
+        closeFloatingViewAfterAWhile();
+    }
+
+    private void initialize() {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         mFloatingView = layoutInflater.inflate(R.layout.floating_view, null);
+    }
 
+    private void setFloatingView() {
         Button floatingButton = (Button) mFloatingView.findViewById(R.id.floating_button);
         floatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,8 +57,21 @@ public class FloatingViewService extends Service {
                 PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-
         mWindowManager.addView(mFloatingView, params);
+    }
+
+    private void closeFloatingViewAfterAWhile() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(FLOATING_VIEW_DELAY);
+                    stopSelf();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
