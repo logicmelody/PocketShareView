@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.IBinder;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,9 +43,8 @@ public class FloatingViewService extends Service {
     public void onCreate() {
         super.onCreate();
         initialize();
-        addFloatingView();
+        setAndAddFloatingView();
         setFloatingButton();
-        setDummyView();
         showFloatingButton();
         closeFloatingViewAfterAWhile();
     }
@@ -95,15 +95,29 @@ public class FloatingViewService extends Service {
         mFloatingButton = (Button) mFloatingView.findViewById(R.id.floating_button);
     }
 
-    private void addFloatingView() {
+    private void setAndAddFloatingView() {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
 
         mWindowManager.addView(mFloatingView, params);
+
+        mFloatingView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_OUTSIDE:
+                        hideFloatingButton();
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 
     private void setFloatingButton() {
@@ -111,21 +125,6 @@ public class FloatingViewService extends Service {
             @Override
             public void onClick(View v) {
                 hideFloatingButton();
-            }
-        });
-    }
-
-    private void setDummyView() {
-        View dummyView = mFloatingView.findViewById(R.id.dummy_view);
-        dummyView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        hideFloatingButton();
-                        return true;
-                }
-                return false;
             }
         });
     }
@@ -138,7 +137,6 @@ public class FloatingViewService extends Service {
 
     private void hideFloatingButton() {
         if(mIsAnimationRunning) return;
-        mFloatingButton.setVisibility(View.GONE);
         mFloatingButton.startAnimation(mFadeOutAnimation);
     }
 
