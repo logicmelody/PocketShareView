@@ -11,7 +11,10 @@ import android.widget.Button;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
+    private static final String FLOATING_VIEW_DIALOGFRAGMENT = "floating_view_dialogfragment";
+
     private Button mShowUpButton;
+    private Button mShowDialogFragmentButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +22,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         mShowUpButton = (Button) findViewById(R.id.show_up_button);
         mShowUpButton.setOnClickListener(this);
+        mShowDialogFragmentButton = (Button) findViewById(R.id.show_dialogfragment_button);
+        mShowDialogFragmentButton.setOnClickListener(this);
     }
 
     @Override
@@ -48,6 +53,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         switch(v.getId()) {
             case R.id.show_up_button:
                 startService(new Intent(this, FloatingViewService.class));
+                break;
+            case R.id.show_dialogfragment_button:
+                Bundle bundle = new Bundle();
+                bundle.putLong(FloatingViewDialogFragment.KEY_DELETED_TASK_ID, 13L);
+                FloatingViewDialogFragment floatingViewDialogFragmentnew = new FloatingViewDialogFragment();
+                floatingViewDialogFragmentnew.setArguments(bundle);
+                floatingViewDialogFragmentnew.show(getFragmentManager(), FLOATING_VIEW_DIALOGFRAGMENT);
                 break;
         }
     }
